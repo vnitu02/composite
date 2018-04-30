@@ -34,6 +34,8 @@ cos_init(void)
 		init_done = 1;
 	}
 
+	cos_retype_all_superpages(&booter_info);
+
 	while (!init_done) ;
 
 	termthd[cos_cpuid()] = cos_thd_alloc(&booter_info, booter_info.comp_cap, term_fn, NULL);

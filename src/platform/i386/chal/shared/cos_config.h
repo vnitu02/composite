@@ -18,7 +18,16 @@
 #include "cpu_ghz.h"
 
 #define NUM_CPU 16
-
+/* 
+ * FIXME: The macro to set a portion of memory of the booter to super pages - 
+ * should be dynamically passed from kernel to userlevel!
+ */
+#define NUM_SUPERPAGES           139 
+#define MAX_USABLE_MEMORY        1700
+/* FIXME: This is a hack - was 0xD800000, now expanded to 1200MB */
+#define EXTRA_MEMORY             ((MAX_USABLE_MEMORY - 512) << 20)
+#define EXTRA_SUPERPAGES         ((MAX_USABLE_MEMORY - 808) / 4)
+#define TOTAL_SUPERPAGES         (NUM_SUPERPAGES + EXTRA_SUPERPAGES - 1)
 /*
  * 1 MB, note that this is not the PA of kernel-usable memory, instead
  * it is the PA of the kernel.  If you change this, update the kernel
@@ -26,7 +35,7 @@
  */
 #define COS_MEM_KERN_PA (0x00100000)
 #define COS_MEM_KERN_PA_ORDER (29)
-#define COS_MEM_KERN_PA_SZ ((1 << COS_MEM_KERN_PA_ORDER) - (1<<26)) /* FIXME: Need a way to get physical memory size from kernel. Cannot use a hardcoded value, actual memory could be much lower! */
+#define COS_MEM_KERN_PA_SZ ((1 << COS_MEM_KERN_PA_ORDER) + EXTRA_MEMORY)
 
 #define COS_MEM_COMP_START_VA ((1 << 30) + (1 << 22)) /* 1GB + 4MB (a relic) */
 #define COS_MEM_KERN_START_VA (0xc0000000) // COS_MEM_KERN_PA     /* currently, we don't do kernel relocation */
