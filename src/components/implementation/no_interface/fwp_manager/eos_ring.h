@@ -5,8 +5,8 @@
 #include <consts.h>
 #include <cos_types.h>
 
-#define EOS_PKT_MAX_SZ 1600 /*the same as Click*/
-#define EOS_RING_SIZE 128
+#define EOS_PKT_MAX_SZ 400/* 1600 */ /*the same as Click*/
+#define EOS_RING_SIZE 16384
 #define EOS_RING_MASK (EOS_RING_SIZE - 1)
 #define GET_RING_NODE(r, h) (&((r)->ring[(h)]))
 

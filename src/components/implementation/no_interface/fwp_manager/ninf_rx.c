@@ -12,7 +12,7 @@
 #define DPDK_PKT_OFF 256
 #define NF_PER_CORE_BATCH 1
 #define DPDK_PKT2MBUF(pkt) ((struct rte_mbuf *)((void *)(pkt) - DPDK_PKT_OFF))
-#define IN2OUT_PORT(port) (!(port))
+#define IN2OUT_PORT(port) ((port))
 
 struct rte_mempool *rx_mbuf_pool;
 struct eos_ring *ninf_ft_data[EOS_MAX_FLOW_NUM];
@@ -38,6 +38,7 @@ ninf_pkt_collect(struct eos_ring *r)
 		r->head++;
 		return 1;
 	}
+	r->head++;
 	return 0;
 }
 static inline int
@@ -147,6 +148,7 @@ ninf_get_nf_ring(struct rte_mbuf *mbuf)
 		ninf_proc_new_flow(mbuf, &pkt_key, rss);
 		ninf_ring = ninf_flow_tbl_lkup(mbuf, &pkt_key, rss);
 		fix_rx_outs[chain_idx++] = ninf_ring;
+		/* printc("dbg chain %d\n", chain_idx); */
 	}
 	return ninf_ring;
 #endif
@@ -185,6 +187,8 @@ static inline void
 ninf_rx_proc_mbuf(struct rte_mbuf *mbuf, int in_port)
 {
 	struct eos_ring *ninf_ring;
+	int r;
+       int dbg_c = 0;
 
 	assert(mbuf);
 
@@ -192,6 +196,12 @@ ninf_rx_proc_mbuf(struct rte_mbuf *mbuf, int in_port)
 		rte_eth_tx_burst(!in_port, 0, &mbuf, 1);
                 return ;
 	}
+        /* if (unlikely(ninf_pkt_is_tcp(mbuf))) { */
+	/* 	/\* printc("dbg tcp ontrol\n"); *\/ */
+	/* 	rte_eth_tx_burst(!in_port, 0, &mbuf, 1); */
+        /*         return ; */
+	/* } */
+
 	ninf_ring = ninf_get_nf_ring(mbuf);
 	assert(ninf_ring);
 	do {
@@ -239,3 +249,4 @@ ninf_rx_init()
 	global_chain = NULL;
 	ninf_ft_init(&ninf_ft, EOS_MAX_FLOW_NUM, sizeof(struct eos_ring *));
 }
+

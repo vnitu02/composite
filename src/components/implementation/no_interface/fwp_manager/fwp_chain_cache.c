@@ -15,12 +15,15 @@ fwp_chain_put(struct nf_chain *chain, enum fwp_chain_state state, unsigned short
 	} while (!cos_cas((unsigned long *)h, (unsigned long)t, (unsigned long)chain));
 }
 
+int dg_cc = 0;
 struct nf_chain *
 fwp_chain_get(enum fwp_chain_state state, unsigned short core)
 {
 	struct nf_chain *r, *t, **h;
 
 	h = &fwp_chain_cache[state][core];
+	dg_cc++;
+	if (!(*h)) printc("dbg fwp chhe fial core %d tot %d\n", core, dg_cc);
 	assert(*h);
 	do {
 		r = ps_load(h);

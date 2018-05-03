@@ -4,7 +4,7 @@
 #include "eos_mca.h"
 #include "eos_pkt.h"
 
-#define MCA_CONN_MAX_NUM 1024
+#define MCA_CONN_MAX_NUM 2048
 
 static struct mca_conn *fl, *lh;
 
@@ -55,6 +55,7 @@ mca_process(struct mca_conn *conn)
 	dst = conn->dst_ring;
 	sn  = GET_RING_NODE(src, src->mca_head & EOS_RING_MASK);
 	if (sn->state != PKT_SENT_READY) return -1;
+	/* if (sn->state != PKT_SENT_READY) {printc("N %d\n", src->mca_head & EOS_RING_MASK); return -1;} */
 	assert(sn->pkt);
 	assert(sn->pkt_len);
 	/* fh  = cos_faa(&(dst->free_head), 0); */
@@ -70,13 +71,13 @@ mca_process(struct mca_conn *conn)
 	sn->state   = PKT_SENT_DONE;
 	rn->state   = PKT_RECV_READY;
 	src->mca_head++;
-	src->pkt_cnt--;
-	fh = cos_faa(&(get_output_ring((void *)dst)->pkt_cnt), 1);
+	/* src->pkt_cnt--; */
+	/* fh = cos_faa(&(get_output_ring((void *)dst)->pkt_cnt), 1); */
 	/* printc("M\n"); */
 	/* fh = cos_faa(&(dst->pkt_cnt), 1); */
-	if (!fh) {
-		eos_thd_wakeup(dst->coreid, dst->thdid);
-	}
+	/* if (!fh) { */
+	/* 	eos_thd_wakeup(dst->coreid, dst->thdid); */
+	/* } */
 	return 0;
 }
 

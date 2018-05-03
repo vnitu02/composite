@@ -1,8 +1,8 @@
 #include "ninf.h"
 #include "ninf_util.h"
 
-#define RX_RING_SIZE    512
-#define TX_RING_SIZE    128
+#define RX_RING_SIZE    1024
+#define TX_RING_SIZE    256
 #define MBUF_CACHE_SIZE 250
 #define RX_MBUF_DATA_SIZE 2048
 #define RX_MBUF_SIZE (RX_MBUF_DATA_SIZE + RTE_PKTMBUF_HEADROOM + sizeof(struct rte_mbuf))
@@ -25,6 +25,7 @@
 #define TX_PTHRESH 36 /* Default values of TX prefetch threshold reg. */
 #define TX_HTHRESH 0  /* Default values of TX host threshold reg. */
 #define TX_WTHRESH 0 /* Default values of TX write-back threshold reg. */
+
 extern struct eos_ring *ninf_ft_data[EOS_MAX_FLOW_NUM];
 extern struct rte_mempool *rx_mbuf_pool;
 
@@ -109,6 +110,7 @@ port_init(uint8_t port, struct rte_mempool *mbuf_pool)
 	/* Display the port MAC address. */
 	struct ether_addr addr;
 	rte_eth_macaddr_get(port, &addr);
+	printc("Port init rx ring %d tx ring %d\n", nb_rxd, nb_txd);
 	printc("Port %u MAC: %02" PRIx8 " %02" PRIx8 " %02" PRIx8
 			   " %02" PRIx8 " %02" PRIx8 " %02" PRIx8 "\n",
 			(unsigned)port,

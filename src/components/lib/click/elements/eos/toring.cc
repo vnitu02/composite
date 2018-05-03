@@ -97,15 +97,23 @@ ToRing::push(int port, Packet *p)
        int r;
 
        assert(p);
+       if (!p) printc("dbg clike toirng\n");
+       if (!output_ring) printc("dbg clike toirng 1\n");
+       if (!input_ring) printc("dbg clike toirng 2\n");
        r = eos_pkt_send(output_ring, (void *)p->data(), p->length(), p->port());
+       // printc("dbg toring 1\n");
        while (r) {
 	       if (r == -EBLOCK) { printc("Q\n"); click_block();}
 	       else if (r == -ECOLLET) { printc("E\n"); eos_pkt_collect(input_ring, output_ring);}
 	       // if (r == -EBLOCK) click_block();
 	       // else if (r == -ECOLLET) eos_pkt_collect(input_ring, output_ring);
+	       // printc("dbg toring 2\n");
 	       r = eos_pkt_send(output_ring, (void *)p->data(), p->length(), p->port());
+	       // printc("dbg toring 4\n");
        }
+       // printc("dbg toring 5\n");
        p->kill();
+       // printc("dbg toring 6\n");
 }
 
 bool

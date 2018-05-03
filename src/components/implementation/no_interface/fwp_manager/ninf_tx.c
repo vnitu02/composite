@@ -7,7 +7,7 @@
 #define TX_NUM_MBUFS 4096
 #define TX_MBUF_DATA_SIZE 0
 #define TX_MBUF_SIZE (TX_MBUF_DATA_SIZE + RTE_PKTMBUF_HEADROOM + sizeof(struct rte_mbuf))
-#define NINF_TX_BATCH 2
+#define NINF_TX_BATCH 1
 
 struct tx_ring {
 	struct eos_ring *r;
@@ -154,6 +154,15 @@ ninf_tx_out_batch()
 }
 
 static inline int
+ninf_tx_clean()
+{
+	int r=0, i;
+
+	for(i=0; i<NUM_NIC_PORTS; i++) {
+		r += rte_eth_tx_done_cleanup(i, 0, 0);
+	}
+	return r;
+}
 
 static inline int
 ninf_tx_process(struct eos_ring *nf_ring)
@@ -168,6 +177,7 @@ ninf_tx_process(struct eos_ring *nf_ring)
 			/* r = ninf_tx_clean(); */
 			/* printc("dbg tx overflow tx \n"); */
 		}
+		/* if (sent->state != PKT_SENT_READY) { printc("dbg tx no pkts\n"); break ;} */
 		if (sent->state != PKT_SENT_READY) break ;
 		assert(sent->pkt);
 		assert(sent->pkt_len);
@@ -177,6 +187,7 @@ ninf_tx_process(struct eos_ring *nf_ring)
 		nf_ring->mca_head++;
 		ret++;
 	}
+	nf_ring->mca_head++;
 	if (ret) cos_faa(&(nf_ring->pkt_cnt), -ret);
 	ninf_tx_out_batch();
 	return ret;

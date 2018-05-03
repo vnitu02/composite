@@ -10,6 +10,7 @@
 #ifndef ps_cc_barrier
 #define ps_cc_barrier() __asm__ __volatile__ ("" : : : "memory")
 #endif
+
 /* static inline void */
 /* dbg_state(struct eos_ring *ring) */
 /* { */
@@ -109,6 +110,7 @@ eos_pkt_recv(struct eos_ring *ring, int *len, int *port, int *err)
 		/* printc("@ tail %d stat %d\n", ring->tail, rn->state); */
 		*err = -EBLOCK;
 	}
+	ring->tail++;
 	return ret;
 }
 
@@ -130,8 +132,21 @@ collect:
 		rn->state   = PKT_FREE;
 		recv->head++;
 		sent->head++;
+		/* printc("C\n"); */
 		goto collect;
 	}
+	/* else { */
+	/* 	struct eos_ring_node *t1, *t2, *t3; */
+	/* 	int h1, h2, h3; */
+	/* 	h1 = sent->head; */
+	/* 	t1 = GET_RING_NODE(sent, h1& EOS_RING_MASK); */
+	/* 	h2 = sent->tail; */
+	/* 	t2 = GET_RING_NODE(sent, h2& EOS_RING_MASK); */
+	/* 	h3 = sent->mca_head; */
+	/* 	t3 = GET_RING_NODE(sent, h3& EOS_RING_MASK); */
+	/* 	printc("dbg head %d %d sta %d tail %d %d sta %d mca %d %d sta %d\n", h1, h1& EOS_RING_MASK, t1->state, h2, h2& EOS_RING_MASK, t2->state, h3, h3& EOS_RING_MASK, t3->state); */
+	/* 	/\* printc("dbg pkt col rr %p sr %p rh %d sh %d sn %x sat %d\n", recv, sent, recv->head & EOS_RING_MASK, sent->head & EOS_RING_MASK, sn, sn->state); *\/ */
+	/* } */
 }
 
 #endif /* __EOS_PKT_H__ */

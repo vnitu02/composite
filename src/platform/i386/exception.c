@@ -136,6 +136,7 @@ page_fault_handler(struct pt_regs *regs)
 	struct cos_cpu_local_info *ci    = cos_cpu_local_info();
 	thdid_t                    thdid = thd_current(ci)->tid;
 
+	if (get_cpuid() == 4 || 1) {
 	print_regs_state(regs);
 	fault_addr = chal_cpu_fault_vaddr(regs);
 	errcode    = chal_cpu_fault_errcode(regs);
@@ -145,6 +146,9 @@ page_fault_handler(struct pt_regs *regs)
 	    errcode & PGTBL_PRESENT ? "present" : "not-present",
 	    errcode & PGTBL_WRITABLE ? "write-fault" : "read-fault", errcode & PGTBL_USER ? "user-mode" : "system",
 	    errcode & PGTBL_WT ? "reserved" : "", errcode & PGTBL_NOCACHE ? "instruction-fetch" : "", fault_addr, eip);
+	} else {
+		die("!@#$^&*()\n");
+	}
 
 	return 1;
 }

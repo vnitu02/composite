@@ -19,7 +19,7 @@
 #include "eos_ring.h"
 
 #define NUM_NIC_PORTS 2
-#define NUM_MBUFS 4096
+#define NUM_MBUFS 16384
 #define BURST_SIZE 32
 #define IP_PROTOCOL_TCP 6
 #define IP_PROTOCOL_UDP 17
@@ -70,6 +70,14 @@ ninf_pkt_is_ipv4(struct rte_mbuf* pkt)
 }
 
 static inline int
+ninf_pkt_is_tcp(struct rte_mbuf* pkt)
+{
+        struct ipv4_hdr *ipv4_hdr;
+        ipv4_hdr = ninf_pkt_ipv4_hdr(pkt);
+        if (ipv4_hdr->next_proto_id == IP_PROTOCOL_TCP) return 1;
+	return 0;
+}
+
 static inline int
 ninf_fill_key(struct pkt_ipv4_5tuple *key, struct rte_mbuf *pkt)
 {
@@ -104,6 +112,7 @@ ninf_fill_key_symmetric(struct pkt_ipv4_5tuple *key, struct rte_mbuf *pkt)
                 assert(0);
         }
 
+	/* printc("dbg sip %d dip %d spor %d dpor %d\n", key->src_addr, key->dst_addr, key->src_port, key->dst_port); */
 	if (key->dst_addr > key->src_addr) {
                 uint32_t temp = key->dst_addr;
                 key->dst_addr = key->src_addr;
